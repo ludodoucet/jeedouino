@@ -1137,6 +1137,7 @@ void loop()
 		// U507[Jeedom] Message|Ceci est un testR -> U 507 [Jeedom] Message | Ceci est un test R = Message pin 507
 
 		// /!\ attention de ne pas mettre de code bloquant (avec trop de "delays") - max time 2s
+		// TODO
 	}
 #endif
 
