@@ -1019,6 +1019,7 @@ void loop()
 					meminput_Prog =1;
 					somfy.somfy_rts_func(SomfyCmd_Prog, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
 					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
 					break;
 				}
 				case 2 :
@@ -1026,6 +1027,7 @@ void loop()
 					meminput_Down =1;
 					somfy.somfy_rts_func(SomfyCmd_Down, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
 					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
 					break;
 				}
 				case 3 :
@@ -1033,6 +1035,7 @@ void loop()
 					meminput_Up =1;
 					somfy.somfy_rts_func(SomfyCmd_Up, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
 					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
 					break;
 				}
 				else { meminput_Prog =0;}
@@ -1041,16 +1044,17 @@ void loop()
 					meminput_My =1;
 					somfy.somfy_rts_func(SomfyCmd_My, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
 					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
 					break;
 				}
 				else { meminput_My =0;}
 				case 5 :
-				if (counterState[i] && !meminput_My) {
+				if (counterState[i] && !meminput_My) { //appuie au moin x secondes
 					meminput_My = 1;
-					somfy.beginRecive();
-					
-					// TODO
-				}
+					somfy.beginRecive(); // début la reception des trames ( voir la lib et ses exemples )
+									    					
+					//TODO après un appuie long
+					}
 				case 0 :
 					break;
 					
