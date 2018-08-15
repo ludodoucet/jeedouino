@@ -150,6 +150,43 @@ unsigned long timeout = 0;
 	// UserVars
 	// Vos declarations de variables / includes etc....
 	//#include <your_stuff_here.h>
+	#include <somfy_rts.h>
+	
+	#define PIN_PROG    4
+	#define PIN_UP      5
+	#define PIN_DOWN    6
+	#define PIN_MY      7
+	
+
+
+	#define REMOTE_CONTROL_ADRESS  0x000001 // in hex
+	uint16_t MyRolingCode[]= {0x01 , 0x02, 0x03 , 0x04 , 0x05 , 0x06 , 0x07};
+	uint16_t newRollingCode[]= {0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01};          // param (si EEPROM contient un code <)
+	
+	//for TX the output 3 is used 
+	//for RX the analoge input 1 is used
+	//for the LED the ouput 8 is used 
+	//this is fixe define inside the lib 
+
+	static somfy_rts somfy;
+
+	uint8_t input_Down;
+	uint8_t input_Up;
+	uint8_t input_My;
+	uint8_t input_Prog;
+	uint8_t input_Sel;
+	
+	uint8_t meminput_Down;
+	uint8_t meminput_Up;
+	uint8_t meminput_My;
+	uint8_t meminput_Prog;
+	uint8_t input_Sel;
+	
+	long buttonTimer = 0;  // tempo BP
+	long longPressTime = 250;
+	
+	boolean buttonActive = false;
+	boolean longPressActive = false;
 #endif
 
 // SETUP
@@ -207,6 +244,26 @@ void setup()
 	void UserSetup()
 	{
 		// Votre setup()
+		// put your setup code here, to run once:
+		pinMode(PIN_PROG,INPUT_PULLUP);
+		pinMode(PIN_UP,INPUT_PULLUP);
+		pinMode(PIN_DOWN,INPUT_PULLUP);
+		pinMode(PIN_MY,INPUT_PULLUP);
+
+		output_1bin(LED_1, OUTPUT);
+		output_2bin(LED_2, OUTPUT);
+		output_3bin(LED_3, OUTPUT);
+		// Serial.begin( 115200 );
+		// Initialize CC1101
+		somfy.beginCC1101(CC1101_TxPower_Plus7dBm)
+		// initialisation du rolling code
+		uint16_t code= 0x00;
+		for (int i = 200; i < 207; i++) {
+			if (EEPROM.get(EEPROM_ADDRESS[i, code] < newRollingCode[i - 200]) {
+			EEPROM.put(EEPROM_ADDRESS[i, code], newRollingCode[i - 200]);
+		}
+		
+		
 	}
 #endif
 
@@ -836,6 +893,230 @@ void loop()
 		// jeedom += "Jeedouino%20speaking%20to%20Jeedom...";   // valeur string
 
 		// /!\ attention de ne pas mettre de code bloquant (avec trop de "delays") - max time 2s
+		
+		//!!! Je ne peux plus modifier le rolling code EEPROM car le montage est associé aux volets !!!
+        //if(Serial.available()) {
+        //    int val = Serial.parseInt();
+        //    if(val>0)
+        //    {
+        //      uint16_t code = (uint16_t) val;
+        //      EEPROM.put(EEPROM_ADDRESS, code); 
+        //      Serial.print("New rolling code    : "); Serial.println(code);
+        //    }
+        //}
+	  
+		input_Prog = digitalRead(PIN_PROG);
+		input_Down = digitalRead(PIN_DOWN);
+		input_Up = digitalRead(PIN_UP);
+		input_My = digitalRead(PIN_MY);
+		input_Sel = pinMode(PIN_SEL, INPUT);
+		
+		int input_ShortProg =  0  // short press on Prog
+		int input_LongProg = 0  // long...
+		//Prog
+		
+		if (input_Prog) {
+			if (buttonActive = false)  {
+				buttonActive = true;
+				buttonTimer = millis();
+			}
+			if ((millis() - buttonTimer > longPressTime) && (longPressActive == false)) {
+				longPressActive = true;
+				input_LongProg = 1
+			} else {
+				if (buttonActive == true) {
+					longPressActive = false;
+				} else { input_ShortProg = 1
+				}
+				buttonActive = false;
+			}
+		}
+				
+			break;
+		}
+		///////
+		int counter = 0;
+		int switchVal = digitalRead(PIN_SEL);
+		
+		
+		if(switchVal == HIGH)
+		{
+			delay(500);  
+			counter ++;
+			//Reset count if over max mode number
+			if(counter == 7)
+		    {
+			counter = 0;
+		    }
+		}
+		 else
+		    //Change mode
+			int input_Type[i] = 0
+			for (int i = 0; i < (counter * 5 - 1); i++) {
+				counterState[i] = counter;
+				if {(meminput_ShortProg[counterState - 1];
+					|| meminput_Down[counterState - 2];
+					|| meminput_Up[counterState - 3];
+					|| meminput_My[counterState - 4];
+					|| meminput_LongProg[counterState - 5]);
+					
+				
+					
+					if (input_Prog && !meminput_ShortProg[counterState - 1]) {input_Type[i] =  1};
+					else {meminput_ShortProg[counterState - 1] = 0};
+					if (input_Down && !meminput_Down[counterState - 1]) {input_Type[i] =  2};
+					else {meminput_Down[counterState - 1] = 0};		
+					if (input_Up && !meminput_Up[counterState - 1]) {input_Type[i] =  3};
+					else {meminput_Up[counterState - 1] = 0};
+					if (input_My && !meminput_My[counterState - 1]) {input_Type[i] =  4};
+					else {meminput_My[counterState - 1] = 0};
+					if (input_Prog && !meminput_LongProg[counterState - 1]) {input_Type[i] =  5};
+					else {meminput_LongProg[counterState - 1] = 0};
+				else {input_Type[i] =  0} 
+				
+			switch (counterState[i] + input_Type[i]*10) {
+
+		   case 1:
+				digitalWrite(output_1bin, LOW);
+				digitalWrite(output_2bin, LOW);
+				digitalWrite(output_3bin, HIGH);
+				break;
+		   case 2:
+				digitalWrite(output_1bin, LOW);
+				digitalWrite(output_2bin, HIGH);
+				digitalWrite(output_3bin, LOW);
+				break;
+		   case 3:
+				digitalWrite(output_1bin, LOW);
+				digitalWrite(output_2bin, HIGH);
+				digitalWrite(output_3bin, HIGH);
+				break;
+		   case 4:
+				digitalWrite(output_1bin, HIGH);
+				digitalWrite(output_2bin, LOW);
+				digitalWrite(output_3bin, LOW);
+				break;
+		   case 5:
+				digitalWrite(output_1bin, HIGH);
+				digitalWrite(output_2bin, LOW);
+				digitalWrite(output_3bin, HIGH);
+				break;
+		   case 6:  
+				digitalWrite(output_1bin, HIGH);
+				digitalWrite(output_2bin, HIGH);
+				digitalWrite(output_3bin, LOW);
+				break;
+		   case 7:
+				digitalWrite(output_1bin, HIGH);
+				digitalWrite(output_2bin, HIGH);
+				digitalWrite(output_3bin, HIGH);
+				break;
+		   }
+		    
+			switch (input_Type[i]) {
+				case 1 :
+				if (counterState[i] && !meminput_Prog) {
+					meminput_Prog =1;
+					somfy.somfy_rts_func(SomfyCmd_Prog, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
+					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
+					break;
+				}
+				case 2 :
+				if (counterState[i] && !meminput_Down) {
+					meminput_Down =1;
+					somfy.somfy_rts_func(SomfyCmd_Down, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
+					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
+					break;
+				}
+				case 3 :
+				if (counterState[i] && !meminput_Up) {
+					meminput_Up =1;
+					somfy.somfy_rts_func(SomfyCmd_Up, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
+					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
+					break;
+				}
+				else { meminput_Prog =0;}
+				case 4 :
+				if (counterState[i] && !meminput_My) {
+					meminput_My =1;
+					somfy.somfy_rts_func(SomfyCmd_My, MyRolingCode[counterState[i]],REMOTE_CONTROL_ADRESS[counterState[i] - 1]);
+					MyRolingCode[counterState[i]] ++;
+					EEPROM.put(EEPROM_ADDRESS[counterState[i] + 200], MyRolingCode[counterState[i]]); 
+					break;
+				}
+				else { meminput_My =0;}
+				case 5 :
+				if (counterState[i] && !meminput_My) { //appuie au moin x secondes
+					meminput_My = 1;
+					somfy.beginRecive(); // début la reception des trames ( voir la lib et ses exemples )
+									    					
+					//TODO après un appuie long
+					}
+				case 0 :
+					break;
+					
+				
+				
+		if (input_Prog && !meminput_Prog[voletNo - 1]  )
+		{
+
+		meminput_Prog[voletNo - 1] = 1;
+		//for (int i=0; i <= 255; i++){
+		somfy.somfy_rts_func(SomfyCmd_Prog, MyRolingCode[voletNo - 1],REMOTE_CONTROL_ADRESS[voletNo - 1]);
+		MyRolingCode[voletNo - 1]++;
+		//Serial.println( "Prog" );
+
+		}
+		else if (!input_Prog)
+		{
+		meminput_Prog =0;
+		}
+
+		//Down
+		if (input_Down && !meminput_Down  )
+		{
+
+		meminput_Down =1;
+		somfy.somfy_rts_func(SomfyCmd_Down, MyRolingCode,REMOTE_CONTROL_ADRESS);
+		MyRolingCode++;
+		//Serial.println( "Down" );
+
+		}
+		else if (!input_Down)
+		{
+		meminput_Down =0;
+		}
+
+		// UP
+		if (input_Up && !meminput_Up  )
+		{
+
+		meminput_Up =1;
+		somfy.somfy_rts_func(SomfyCmd_Up, MyRolingCode,REMOTE_CONTROL_ADRESS);
+		MyRolingCode++;
+		//Serial.println( "Up" );
+		}
+		else if (!input_Up)
+		{
+		meminput_Up =0;
+		}  
+
+		// My stop for me
+		if (input_My && !meminput_My  )
+		{
+
+		meminput_My =1;
+		somfy.somfy_rts_func(SomfyCmd_My, MyRolingCode,REMOTE_CONTROL_ADRESS);
+		Serial.println( "My" );
+		MyRolingCode++;
+		}
+		else if (!input_My)
+		{
+		meminput_My =0;
+		} 		
 	}
 	void UserAction()
 	{
@@ -856,10 +1137,22 @@ void loop()
 		// U507[Jeedom] Message|Ceci est un testR -> U 507 [Jeedom] Message | Ceci est un test R = Message pin 507
 
 		// /!\ attention de ne pas mettre de code bloquant (avec trop de "delays") - max time 2s
+		// TODO
 	}
 #endif
 
 // FONCTIONS
+void SendCommand(SomfyCmd cmd) {
+    uint16_t code;
+    EEPROM.get(EEPROM_ADDRESS, code);
+    
+    somfy.somfy_rts_func(cmd, code, REMOTE_CONTROL_ADRESS);
+    
+    EEPROM.put(EEPROM_ADDRESS, code + 1); //  We store the value of the rolling code in the
+                                    // EEPROM. It should take up to 2 adresses but the
+                                    // Arduino function takes care of it.
+    // Serial.print("Current rolling code    : "); Serial.println(code+1);
+}
 
 void SendToJeedom()
 {
